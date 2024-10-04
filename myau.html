@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Реестр участников</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        div {
+            margin-bottom: 15px;
+        }
+
+        input[type="text"], input[type="email"] {
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Реестр участников вебинара</h1>
+
+    <!-- Загрузка Excel-файла -->
+    <div>
+        <label for="fileInput">Загрузите Excel-файл с дистанционными участниками:</label>
+        <input type="file" id="fileInput" accept=".xlsx">
+    </div>
+
+    <!-- Ввод очных участников -->
+    <h2>Добавить участника очно:</h2>
+    <div id="onSiteParticipants">
+        <div class="participant-input">
+            <input type="text" placeholder="Компания" id="company" />
+            <input type="text" placeholder="ФИО" id="fullName" />
+            <input type="email" placeholder="Email" id="email" />
+            <button id="addParticipantBtn">Добавить</button>
+        </div>
+    </div>
+
+    <!-- Кнопка для формирования и скачивания итогового реестра -->
+    <button id="downloadBtn">Скачать итоговый реестр</button>
+
+    <!-- Подключение библиотеки для работы с Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', handleFile);
+        document.getElementById('addParticipantBtn').addEventListener('click', addParticipant);
+        document.getElementById('downloadBtn').addEventListener('click', downloadExcel);
+
+        let distantParticipants = [];
+        let onSiteParticipants = [];
+
+        // Обработка загруженного файла Excel
+        function handleFile(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const sheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[sheetName];
+                distantParticipants = XLSX.utils.sheet_to_json(worksheet);
+                console.log(distantParticipants);  // Данные дистанционных участников
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        // Добавление очного участника
+        function addParticipant() {
+            const company = document.getElementById('company').value;
+            const fullName = document.getElementById('fullName').value;
+            const email = document.getElementById('email').value;
+
+            if (company && fullName && email) {
+                onSiteParticipants.push({
+                    'Компания': company,
+                    'ФИО': fullName,
+                    'Email': email
+                });
+
+                // Очищаем поля ввода после добавления
+                document.getElementById('company').value = '';
+                document.getElementById('fullName').value = '';
+                document.getElementById('email').value = '';
+
+                console.log(onSiteParticipants);  // Данные очных участников
+            } else {
+                alert('Пожалуйста, заполните все поля!');
+            }
+        }
+
+        // Формирование итогового Excel-файла
+        function downloadExcel() {
+            const allParticipants = distantParticipants.concat(onSiteParticipants);
+
+            // Создаем новый Excel файл
+            const worksheet = XLSX.utils.json_to_sheet(allParticipants);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Реестр');
+
+            // Скачиваем файл
+            XLSX.writeFile(workbook, 'итоговый_реестр.xlsx');
+        }
+    </script>
+
+</body>
+</html>

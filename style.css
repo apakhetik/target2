@@ -1,0 +1,381 @@
+html {
+  scroll-behavior: smooth;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Gotham Pro", sans-serif;
+}
+
+body {
+  background-color: #f4f4f9;
+  color: #333;
+}
+
+.content-block {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 600px;
+  margin: auto;
+  margin-top: 50px;
+}
+
+h1 {
+  font-size: 24px;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.input-container {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+textarea {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  resize: none;
+  line-height: 1.5;
+}
+
+#formatButton,
+#downloadTarget {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #333;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  background-color: #333;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+#formatButton:hover,
+#downloadTarget:hover {
+  background-color: #fff;
+  color: #333;
+  transition: 0.3s;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin-top: 15px;
+}
+
+ul li {
+  padding: 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+ul li span.line-number {
+  color: #6c757d;
+  font-size: 12px;
+  background-color: #fff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-right: 10px;
+}
+
+ul li span.phone-number {
+  flex: 1;
+  color: #343a40;
+  font-weight: bold;
+}
+
+#invalidNumbers {
+  margin-top: 20px;
+  color: red;
+}
+
+#invalidNumbers li {
+  color: #dc3545;
+}
+
+#downloadTarget {
+  display: none; /* Скрыто до тех пор, пока не будет отформатировано */
+}
+
+p {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.header {
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.container {
+  margin-left: 250px;
+  margin-right: 250px;
+}
+
+.link-head {
+  color: #000;
+  text-decoration: none;
+  font-size: 20px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+@keyframes thanos-snap {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100px);
+    filter: blur(10px);
+  }
+}
+
+.disappearing {
+  transition: opacity 1s ease;
+  opacity: 0;
+}
+.content-block {
+  display: none; /* Изначально скрываем все блоки */
+}
+.content-block.active {
+  display: block; /* Показываем активный блок */
+}
+
+#serts input[type="text"],
+#serts input[type="email"],
+#serts input[type="date"],
+#serts select {
+  width: 100%; /* Полная ширина элементов формы */
+  padding: 10px; /* Внутренние отступы */
+  margin-bottom: 20px; /* Отступы снизу */
+  border: 1px solid #ccc; /* Цвет рамки */
+  border-radius: 5px; /* Скругленные углы */
+  font-size: 16px; /* Размер шрифта */
+}
+
+#serts input[type="file"] {
+  margin-bottom: 20px; /* Отступы снизу для поля выбора файла */
+}
+
+#serts button {
+  background-color: #4caf50; /* Цвет фона кнопки */
+  color: white; /* Цвет текста кнопки */
+  padding: 10px 20px; /* Внутренние отступы кнопки */
+  border: none; /* Убираем рамку кнопки */
+  border-radius: 5px; /* Скругленные углы кнопки */
+  cursor: pointer; /* Курсор для кнопки */
+  font-size: 16px; /* Размер шрифта для кнопки */
+  transition: background-color 0.3s; /* Плавный переход цвета фона */
+}
+
+#serts button:hover {
+  background-color: #45a049; /* Цвет фона кнопки при наведении */
+}
+
+#serts #message {
+  margin-top: 20px; /* Отступ сверху для сообщения */
+  font-size: 18px; /* Размер шрифта для сообщения */
+  color: #4caf50; /* Цвет сообщения */
+  font-weight: bold; /* Жирный шрифт для сообщения */
+  text-align: center; /* Центрирование текста сообщения */
+}
+
+#serts input:focus,
+#serts select:focus {
+  outline: none; /* Убираем обводку при фокусе */
+  border-color: #4caf50; /* Цвет рамки при фокусе */
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); /* Тень при фокусе */
+}
+
+.katuha-cont {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 600px;
+  margin: auto;
+  margin-top: 50px;
+}
+
+.katuha-cont h1 {
+  font-size: 24px;
+  text-align: center;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  color: #333;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.katuha-cont h3 {
+  margin-top: 25px;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.file-upload {
+  position: relative; /* Позиционирование для вложенных элементов */
+  margin: 10px 0; /* Отступы сверху и снизу */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  text-align: center;
+}
+
+input[type="file"] {
+  display: none; /* Скрыть стандартный элемент input */
+}
+
+.file-upload-label {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #333;
+  border-radius: 5px;
+
+  margin-bottom: 10px;
+  cursor: pointer;
+  background-color: #333;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.file-upload-label:hover {
+  background-color: #fff;
+  color: #333;
+  transition: 0.3s;
+}
+
+.viberite {
+  display: flex;
+  flex-direction: column;
+}
+
+.viberite input {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  height: 32px;
+  padding: 20px;
+  border: 1px solid #f0f0f0;
+  border-radius: 15px;
+  font-size: 16px;
+  outline: none;
+}
+
+.viberite select {
+  margin-top: 10px;
+  margin-bottom: 20px;
+  height: 32px;
+  font-size: 16px;
+  padding: 5px 5px 5px 5px;
+  border: 1px solid #f0f0f0;
+  color: #333;
+  border-radius: 15px;
+}
+
+.viberite button {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #333;
+  border-radius: 5px;
+
+  margin-bottom: 10px;
+  cursor: pointer;
+  background-color: #333;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.viberite button:hover {
+  background-color: #fff;
+  color: #333;
+  transition: 0.3s;
+}
+
+.download-btn {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #333;
+  border-radius: 5px;
+
+  margin-bottom: 10px;
+  cursor: pointer;
+  background-color: #333;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.download-btn:hover {
+  background-color: #fff;
+  color: #333;
+  transition: 0.3s;
+}
+
+table {
+  width: 100%; /* Занимает всю ширину контейнера */
+  border-collapse: collapse; /* Убирает двойные границы */
+  margin-top: 20px; /* Отступ сверху */
+  margin-bottom: 15px;
+}
+
+th,
+td {
+  padding: 12px; /* Отступы внутри ячеек */
+  text-align: left; /* Выравнивание текста по левому краю */
+  border-bottom: 1px solid #ddd; /* Нижняя граница для разделения строк */
+  background-color: #fff;
+}
+
+td {
+  border-left: 1px solid #f0f0f0;
+}
+
+th {
+  color: #333; /* Цвет текста заголовков */
+  font-weight: bold; /* Жирный шрифт для заголовков */
+  border-left: 1px solid #f0f0f0;
+}
+
+thead {
+  width: 1200px;
+}
+
+tr:hover {
+  background-color: #f1f1f1; /* Цвет фона строки при наведении */
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f9f9f9; /* Цвет фона для четных строк */
+}
+
+.imgkat {
+  text-align: center;
+}
+
+.katuh {
+  width: 150px;
+  border-radius: 50%;
+}

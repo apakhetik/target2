@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>СПЕШЛ ФРОМ КАТЮХА</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="header">
+      <div class="left-head">
+        <img src="./logo.png" alt="" class="logo" />
+      </div>
+      <div class="center-head">
+        <a href="./index.html" class="link-head" id="show-target">Таргет</a>
+        <a href="./index.html" class="link-head" id="show-serts">Сертификаты</a>
+        <a href="katuha.html" class="link-head">КАТЮХА</a>
+      </div>
+    </div>
+    <div class="katuha-cont">
+      <h1>Управление реестром посетителей</h1>
+      <p>Для катюхи 💕</p>
+      <div class="imgkat">
+        <img src="a.png" alt="" class="katuh" />
+        <img src="a.png" alt="" class="katuh" />
+        <img src="a.png" alt="" class="katuh" />
+      </div>
+      <h3>Загрузка изначального реестра</h3>
+      <div class="file-upload">
+        <input type="file" id="excelFileInputOriginal" accept=".xlsx, .xls" />
+        <label for="excelFileInputOriginal" class="file-upload-label"
+          >Выбрать файл</label
+        >
+      </div>
+
+      <h3>Загрузка реестра дистанционных участников</h3>
+      <div class="file-upload">
+        <input type="file" id="excelFileInputRemote" accept=".xlsx, .xls" />
+        <label for="excelFileInputRemote" class="file-upload-label"
+          >Выбрать файл</label
+        >
+        <script>
+          function playSound() {
+            const sound = document.getElementById("clickSound");
+            sound.play();
+          }
+        </script>
+      </div>
+      <h3>Добавление очного участника</h3>
+      <div class="viberite">
+        <input
+          type="text"
+          id="attendeeName"
+          placeholder="ФИО участника"
+          required />
+        <input
+          type="text"
+          id="attendeeCompany"
+          placeholder="Компания"
+          required />
+        <input type="email" id="attendeeEmail" placeholder="Email" required />
+        <select id="ticketType" required>
+          <option value="" disabled selected>Выберите тип билета</option>
+          <option value="оптимальный">Оптимальный</option>
+          <option value="стандарт">Стандарт</option>
+        </select>
+        <button onclick="addAttendee()">Добавить очного участника</button>
+      </div>
+
+      <button class="download-btn" onclick="exportTableToExcel()">
+        Скачать реестр
+      </button>
+      <script>
+        function exportTableToExcel() {
+          const allAttendees = [];
+          const attendeesToDrop = [];
+
+          // Загружаем дистанционных участников
+          remoteRegistry.forEach(remoteAttendee => {
+            allAttendees.push({
+              "Сотрудник клиента": remoteAttendee.fullName,
+              Компания: remoteAttendee.company,
+              Email: remoteAttendee.email,
+              "Тип билета": "Дистанционный",
+              Присутствие: "Да",
+              Статус: originalAttendee.status,
+              Телефон: originalAttendee.number,
+              Ответственный: originalAttendee.otvet,
+              Комментарий: originalAttendee.komm,
+              "Кто зарегистрировал": originalAttendee.ktoreg,
+              "Когда зарегистрирован": originalAttendee.regwhen,
+              Договор: originalAttendee.dogovor,
+              "Комментарий к договору": originalAttendee.kommdog,
+            });
+          });
+
+          console.log("Дистанционные участники добавлены:", allAttendees);
+
+          // Загружаем очных участников
+          originalRegistry.forEach(originalAttendee => {
+            if (originalAttendee.present) {
+              allAttendees.push({
+                Компания: originalAttendee.company,
+                "Сотрудник клиента": originalAttendee.name,
+                Сумма: originalAttendee.summa,
+                Email: originalAttendee.email,
+                "Тип билета": originalAttendee.ticketType,
+                Присутствие: "Да",
+                Статус: originalAttendee.status,
+                Телефон: originalAttendee.number,
+                Ответственный: originalAttendee.otvet,
+                Комментарий: originalAttendee.komm,
+                "Кто зарегистрировал": originalAttendee.ktoreg,
+                "Когда зарегистрирован": originalAttendee.regwhen,
+                Договор: originalAttendee.dogovor,
+                "Комментарий к договору": originalAttendee.kommdog,
+              });
+            } else {
+              attendeesToDrop.push({
+                Компания: originalAttendee.company,
+                "Сотрудник клиента": originalAttendee.name,
+                Сумма: originalAttendee.summa,
+                Email: originalAttendee.email,
+                "Тип билета": originalAttendee.ticketType,
+                Статус: originalAttendee.status,
+                Телефон: originalAttendee.number,
+                Ответственный: originalAttendee.otvet,
+                Комментарий: originalAttendee.komm,
+                "Кто зарегистрировал": originalAttendee.ktoreg,
+                "Когда зарегистрирован": originalAttendee.regwhen,
+                Договор: originalAttendee.dogovor,
+                "Комментарий к договору": originalAttendee.kommdog,
+              });
+            }
+          });
+
+          console.log("Очные участники добавлены:", allAttendees);
+          console.log("Очные участники без галочки (отвал):", attendeesToDrop);
+
+          const allWorksheet = XLSX.utils.json_to_sheet(allAttendees);
+          const dropWorksheet = XLSX.utils.json_to_sheet(attendeesToDrop);
+
+          // Установка ширины столбцов
+          const columnWidths = {
+            A: { wpx: 200 }, // ФИО
+            B: { wpx: 250 }, // Компания
+            C: { wpx: 250 }, // Email
+            D: { wpx: 150 }, // Тип билета
+            E: { wpx: 100 }, // Присутствие
+            F: { wpx: 100 },
+            G: { wpx: 100 },
+          };
+
+          allWorksheet["!cols"] = Object.values(columnWidths);
+          dropWorksheet["!cols"] = Object.values(columnWidths);
+
+          const workbook = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(
+            workbook,
+            allWorksheet,
+            "Общий реестр участников"
+          );
+          XLSX.utils.book_append_sheet(workbook, dropWorksheet, "Отвал");
+
+          XLSX.writeFile(workbook, "реестр_участников.xlsx");
+        }
+      </script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+      <script>
+        let originalRegistry = []; // Изначальный реестр
+        let remoteRegistry = []; // Дистанционные участники
+
+        // Обработка файла дистанционных участников
+        document
+          .getElementById("excelFileInputRemote")
+          .addEventListener("change", handleRemoteFile);
+
+        function addAttendee() {
+          const name = document.getElementById("attendeeName").value;
+          const company = document.getElementById("attendeeCompany").value;
+          const email = document.getElementById("attendeeEmail").value;
+          const ticketType = document.getElementById("ticketType").value;
+
+          if (name && company && email && ticketType) {
+            const attendee = {
+              name: name,
+              company: company,
+              email: email,
+              ticketType: ticketType, // Указываем выбранный тип билета
+              present: false, // Устанавливаем значение по умолчанию
+            };
+
+            // Добавляем участника в реестр
+            originalRegistry.push(attendee);
+            console.log("Добавленный участник:", attendee);
+
+            // Обновляем таблицу
+            updateOriginalTable();
+
+            // Очищаем поля ввода
+            document.getElementById("attendeeName").value = "";
+            document.getElementById("attendeeCompany").value = "";
+            document.getElementById("attendeeEmail").value = "";
+            document.getElementById("ticketType").selectedIndex = 0; // Сбрасываем выбор типа билета
+          } else {
+            alert("Пожалуйста, заполните все поля.");
+          }
+        }
+
+        function handleRemoteFile(event) {
+          const file = event.target.files[0];
+
+          if (!file) {
+            console.error("Файл не выбран.");
+            return;
+          }
+
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            try {
+              const data = new Uint8Array(e.target.result);
+              const workbook = XLSX.read(data, { type: "array" });
+              const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+              const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+              // Successfully processed the file
+              document.getElementById("excelFileInputRemote").innerText =
+                "Файл успешно загружен!";
+              remoteRegistry = jsonData
+                .filter(row => row["Имя"] && row["Фамилия"])
+                .map(row => ({
+                  company: row["Компания"] || "",
+                  fullName: row["Имя"].trim() + " " + row["Фамилия"].trim(),
+                  summa: row["Сумма"] || "",
+                  status: row["Статус"] || "",
+                  email: row["Email"] || "",
+                  number: row["Телефон"] || "",
+                  otvet: row["Ответственный"] || "",
+                  komm: row["Комментарий"] || "",
+                  ktoreg: row["Кто зарегистрировал"] || "",
+                  regwhen: row["Когда зарегистрирован"] || "",
+                  dogovor: row["Договор"] || "",
+                  kommdog: row["Комментарий к договору"] || "",
+                }));
+
+              updateRemoteTable();
+            } catch (error) {
+              console.error("Ошибка при обработке файла:", error);
+              document.getElementById("excelFileInputRemote").innerText =
+                "Ошибка загрузки файла.";
+            }
+          };
+          reader.readAsArrayBuffer(file);
+        }
+
+        // Обновление таблицы с дистанционными участниками
+        function updateRemoteTable() {
+          const tableBody = document
+            .getElementById("attendeeTable")
+            .getElementsByTagName("tbody")[0];
+
+          // Добавляем дистанционных участников в таблицу
+          remoteRegistry.forEach(function (attendee) {
+            const row = tableBody.insertRow();
+            row.insertCell(0).textContent = attendee.company; // Компания
+            row.insertCell(1).textContent = attendee.fullName; // ФИО
+            row.insertCell(2).textContent = attendee.email; // Email
+            row.insertCell(3).textContent = "Дистанционный"; // Указываем тип билета
+
+            // Используем цикл для заполнения остальных ячеек значением "Не требуется"
+            for (let i = 4; i <= 13; i++) {
+              row.insertCell(i).textContent = "Не требуется";
+            }
+          });
+        }
+
+        // Обработка файла изначального реестра
+        document
+          .getElementById("excelFileInputOriginal")
+          .addEventListener("change", handleOriginalFile);
+
+        function handleOriginalFile(event) {
+          const file = event.target.files[0];
+
+          if (!file) {
+            console.error("Файл не выбран.");
+            return;
+          }
+
+          const reader = new FileReader();
+          reader.onload = function (e) {
+            try {
+              const data = new Uint8Array(e.target.result);
+              const workbook = XLSX.read(data, { type: "array" });
+              const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+              const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+              console.log(
+                "Оригинальный реестр успешно загружен. Данные:",
+                jsonData
+              );
+
+              // Фильтруем участников по типу билета "Оптимальный" или "Стандарт"
+              originalRegistry = jsonData
+                .filter(row => {
+                  // Проверяем, существует ли значение в столбце "Билет"
+                  const ticketType = row["Билет"];
+                  return (
+                    ticketType &&
+                    (ticketType.toLowerCase() === "оптимальный" ||
+                      ticketType.toLowerCase() === "стандарт")
+                  );
+                })
+                .map(function (row) {
+                  return {
+                    company: row["Компания"],
+                    name: row["Сотрудник клиента"], // ФИО участника
+                    summa: row["Сумма"],
+                    email: row["Email"],
+                    ticketType: row["Билет"],
+                    status: row["Статус"],
+                    present: false, // Флаг присутствия
+                    number: row["Телефон"],
+                    otvet: row["Ответственный"],
+                    komm: row["Комментарий"],
+                    ktoreg: row["Кто зарегистрировал"],
+                    regwhen: row["Когда зарегистрирован"],
+                    dogovor: row["Договор"],
+                    kommdog: row["Комментарий к договору"],
+                  };
+                });
+
+              console.log(
+                "Изначальный реестр (фильтрованный):",
+                originalRegistry
+              );
+              updateOriginalTable(); // Обновляем таблицу
+            } catch (error) {
+              console.error(
+                "Ошибка при обработке файла изначального реестра:",
+                error
+              );
+            }
+          };
+          reader.onerror = function () {
+            console.error("Ошибка чтения файла");
+          };
+          reader.readAsArrayBuffer(file);
+        }
+
+        // Обновление таблицы с участниками
+        function updateOriginalTable() {
+          const tableBody = document
+            .getElementById("attendeeTable")
+            .getElementsByTagName("tbody")[0];
+
+          // Проходим по каждому участнику и добавляем его в таблицу
+          originalRegistry.forEach(function (attendee) {
+            const row = tableBody.insertRow();
+            row.insertCell(0).textContent = attendee.company;
+            row.insertCell(1).textContent = attendee.name; // ФИО // Компания
+            row.insertCell(2).textContent = attendee.status; // статус
+            row.insertCell(3).textContent = attendee.ticketType; // билет
+            row.insertCell(4).textContent = attendee.summa; // сумма
+            row.insertCell(5).textContent = attendee.number; // сумма
+            row.insertCell(6).textContent = attendee.email; // Email
+            row.insertCell(7).textContent = attendee.otvet;
+            row.insertCell(8).textContent = attendee.komm;
+            row.insertCell(9).textContent = attendee.ktoreg;
+
+            row.insertCell(10).textContent = attendee.regwhen;
+            row.insertCell(11).textContent = attendee.dogovor;
+            row.insertCell(12).textContent = attendee.kommdog;
+            // Добавляем чекбокс для отметки присутствия
+            const presentCell = row.insertCell(13);
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = attendee.present; // Устанавливаем значение присутствия
+            checkbox.addEventListener("change", function () {
+              attendee.present = checkbox.checked; // Обновляем состояние присутствия
+            });
+            presentCell.appendChild(checkbox);
+          });
+        }
+      </script>
+    </div>
+    <h3>Итоговый реестр участников</h3>
+    <table id="attendeeTable" style="text-align: center">
+      <thead>
+        <tr>
+          <th style="width: 100px">Компания</th>
+          <th style="width: 100px">Сотрудник клиента</th>
+          <th style="width: 100px">Статус</th>
+          <th style="width: 100px">Билет</th>
+          <th style="width: 50px">Сумма</th>
+          <th style="width: 100px">Телефон</th>
+          <th style="width: 100px">Email</th>
+          <th style="width: 100px">Ответственный</th>
+          <th style="width: 100px">Комментарий</th>
+          <th style="width: 150px">Кто зарегистрировал</th>
+          <th style="width: 30px">Когда зарегистрирован</th>
+          <th style="width: 50px">Договор</th>
+          <th style="width: 100px">Комментарий к договору</th>
+          <th style="width: 100px">Присутствие</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Участники будут добавляться сюда -->
+      </tbody>
+    </table>
+  </body>
+</html>
