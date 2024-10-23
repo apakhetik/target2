@@ -6,28 +6,17 @@
     <title>СПЕШЛ ФРОМ КАТЮХА</title>
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body>
-    <div class="header">
-      <div class="left-head">
-        <img src="./logo.png" alt="" class="logo" />
-      </div>
-      <div class="center-head">
-        <a href="./index.html" class="link-head" id="show-target">Таргет</a>
-        <a href="./index.html" class="link-head" id="show-serts">Сертификаты</a>
-        <a href="katuha.html" class="link-head">КАТЮХА</a>
-      </div>
-    </div>
+  <body class="ktaer">
     <div class="katuha-cont">
       <h1>Управление реестром посетителей</h1>
-      <p>Для катюхи 💕</p>
-      <div class="imgkat">
-        <img src="a.png" alt="" class="katuh" />
-        <img src="a.png" alt="" class="katuh" />
-        <img src="a.png" alt="" class="katuh" />
-      </div>
+
       <h3>Загрузка изначального реестра</h3>
       <div class="file-upload">
-        <input type="file" id="excelFileInputOriginal" accept=".xlsx, .xls" />
+        <input
+          type="file"
+          style="display: none"
+          id="excelFileInputOriginal"
+          accept=".xlsx, .xls" />
         <label for="excelFileInputOriginal" class="file-upload-label"
           >Выбрать файл</label
         >
@@ -35,378 +24,772 @@
 
       <h3>Загрузка реестра дистанционных участников</h3>
       <div class="file-upload">
-        <input type="file" id="excelFileInputRemote" accept=".xlsx, .xls" />
-        <label for="excelFileInputRemote" class="file-upload-label"
+        <input
+          type="file"
+          style="display: none"
+          id="excelFileInputDist"
+          accept=".xlsx, .xls" />
+        <label for="excelFileInputDist" class="file-upload-label"
           >Выбрать файл</label
         >
-        <script>
-          function playSound() {
-            const sound = document.getElementById("clickSound");
-            sound.play();
-          }
-        </script>
       </div>
-      <h3>Добавление очного участника</h3>
-      <div class="viberite">
-        <input
-          type="text"
-          id="attendeeName"
-          placeholder="ФИО участника"
-          required />
-        <input
-          type="text"
-          id="attendeeCompany"
-          placeholder="Компания"
-          required />
-        <input type="email" id="attendeeEmail" placeholder="Email" required />
-        <select id="ticketType" required>
-          <option value="" disabled selected>Выберите тип билета</option>
-          <option value="оптимальный">Оптимальный</option>
-          <option value="стандарт">Стандарт</option>
-        </select>
-        <button onclick="addAttendee()">Добавить очного участника</button>
+      <a href="#" class="dobav" onclick="openModal(event)"
+        >Добавление очного участника *ᶜˡᶦᶜᵏ</a
+      >
+      <div id="modal" class="modal">
+        <div class="modal-content">
+          <span class="close" onclick="closeModal()">&times;</span>
+          <h2>Добавление очного участника</h2>
+          <div class="viberite">
+            <button onclick="addAttendee()">Добавить очного участника</button>
+          </div>
+        </div>
       </div>
+      <script>
+        function openModal() {
+          updateInputForm();
+          document.getElementById("modal").style.display = "block";
+        }
 
+        // Функция для закрытия модального окна
+        function closeModal() {
+          document.getElementById("modal").style.display = "none";
+        }
+
+        function updateInputForm() {
+          const selectedColumns = Array.from(
+            document.querySelectorAll("#columnSelector input:checked")
+          ).map(input => input.value);
+
+          const inputContainer = document.querySelector(".viberite");
+
+          const indexGroup = document.createElement("div");
+
+          const indexLabel = document.createElement("label");
+          indexLabel.textContent = ""; // Название поля для индекса
+          const indexInput = document.createElement("input");
+          indexInput.type = "text";
+          indexInput.id = "attendeeIndex";
+          indexInput.disabled = true; // Поле индекса не должно быть редактируемым
+          indexGroup.appendChild(indexLabel);
+          indexGroup.appendChild(indexInput);
+          inputContainer.insertBefore(indexGroup, inputContainer.firstChild);
+          selectedColumns.forEach(column => {
+            const inputGroup = document.createElement("div");
+            inputGroup.className = "index-group";
+            const label = document.createElement("label");
+            label.textContent = column;
+
+            if (column === "Билет") {
+              // Создаем select для поля "Билет"
+              const select = document.createElement("select");
+              select.id = `attendee${column.replace(/\s+/g, "")}`;
+              const options = [
+                {
+                  value: "",
+                  text: "Выберите тип билета",
+                  disabled: true,
+                  selected: true,
+                },
+                { value: "оптимальный", text: "Оптимальный" },
+                { value: "стандарт", text: "Стандарт" },
+                { value: "дистанционный", text: "Дистанционный" },
+              ];
+
+              // Добавляем опции в select
+              options.forEach(optionData => {
+                const option = document.createElement("option");
+                option.value = optionData.value;
+                option.textContent = optionData.text;
+                if (optionData.disabled) option.disabled = true;
+                if (optionData.selected) option.selected = true;
+                select.appendChild(option);
+              });
+
+              inputGroup.appendChild(label);
+              inputGroup.appendChild(select);
+            } else {
+              // Создаем обычный input для других полей
+              const input = document.createElement("input");
+              input.type = "text";
+              input.id = `attendee${column.replace(/\s+/g, "")}`;
+
+              inputGroup.appendChild(label);
+              inputGroup.appendChild(input);
+            }
+
+            // Вставляем группу ввода перед кнопкой
+            inputContainer.insertBefore(inputGroup, inputContainer.lastChild);
+          });
+        }
+      </script>
+      <div class="title-input">
+        <input
+          type="text"
+          id="eventTitle"
+          placeholder="Введите тип мероприятия" />
+        <input
+          type="text"
+          id="eventType"
+          placeholder="Введите название мероприятия" />
+      </div>
       <button class="download-btn" onclick="exportTableToExcel()">
         Скачать реестр
       </button>
-      <script>
-        function exportTableToExcel() {
-          const allAttendees = [];
-          const attendeesToDrop = [];
-
-          // Загружаем дистанционных участников
-          remoteRegistry.forEach(remoteAttendee => {
-            allAttendees.push({
-              "Сотрудник клиента": remoteAttendee.fullName,
-              Компания: remoteAttendee.company,
-              Email: remoteAttendee.email,
-              "Тип билета": "Дистанционный",
-              Присутствие: "Да",
-              Статус: remoteAttendee.status,
-              Телефон: remoteAttendee.number,
-              Ответственный: remoteAttendee.otvet,
-              Комментарий: remoteAttendee.komm,
-              "Кто зарегистрировал": remoteAttendee.ktoreg,
-              "Когда зарегистрирован": remoteAttendee.regwhen,
-              Договор: remoteAttendee.dogovor,
-              "Комментарий к договору": remoteAttendee.kommdog,
-            });
-          });
-
-          console.log("Дистанционные участники добавлены:", allAttendees);
-
-          // Загружаем очных участников
-          originalRegistry.forEach(originalAttendee => {
-            if (originalAttendee.present) {
-              allAttendees.push({
-                Компания: originalAttendee.company,
-                "Сотрудник клиента": originalAttendee.name,
-                Сумма: originalAttendee.summa,
-                Email: originalAttendee.email,
-                "Тип билета": originalAttendee.ticketType,
-                Присутствие: "Да",
-                Статус: originalAttendee.status,
-                Телефон: originalAttendee.number,
-                Ответственный: originalAttendee.otvet,
-                Комментарий: originalAttendee.komm,
-                "Кто зарегистрировал": originalAttendee.ktoreg,
-                "Когда зарегистрирован": originalAttendee.regwhen,
-                Договор: originalAttendee.dogovor,
-                "Комментарий к договору": originalAttendee.kommdog,
-              });
-            } else {
-              attendeesToDrop.push({
-                Компания: originalAttendee.company,
-                "Сотрудник клиента": originalAttendee.name,
-                Сумма: originalAttendee.summa,
-                Email: originalAttendee.email,
-                "Тип билета": originalAttendee.ticketType,
-                Статус: originalAttendee.status,
-                Телефон: originalAttendee.number,
-                Ответственный: originalAttendee.otvet,
-                Комментарий: originalAttendee.komm,
-                "Кто зарегистрировал": originalAttendee.ktoreg,
-                "Когда зарегистрирован": originalAttendee.regwhen,
-                Договор: originalAttendee.dogovor,
-                "Комментарий к договору": originalAttendee.kommdog,
-              });
-            }
-          });
-
-          console.log("Очные участники добавлены:", allAttendees);
-          console.log("Очные участники без галочки (отвал):", attendeesToDrop);
-
-          const allWorksheet = XLSX.utils.json_to_sheet(allAttendees);
-          const dropWorksheet = XLSX.utils.json_to_sheet(attendeesToDrop);
-
-          // Установка ширины столбцов
-          const columnWidths = {
-            A: { wpx: 200 }, // ФИО
-            B: { wpx: 250 }, // Компания
-            C: { wpx: 250 }, // Email
-            D: { wpx: 150 }, // Тип билета
-            E: { wpx: 100 }, // Присутствие
-            F: { wpx: 100 },
-            G: { wpx: 100 },
-          };
-
-          allWorksheet["!cols"] = Object.values(columnWidths);
-          dropWorksheet["!cols"] = Object.values(columnWidths);
-
-          const workbook = XLSX.utils.book_new();
-          XLSX.utils.book_append_sheet(
-            workbook,
-            allWorksheet,
-            "Общий реестр участников"
-          );
-          XLSX.utils.book_append_sheet(workbook, dropWorksheet, "Отвал");
-
-          XLSX.writeFile(workbook, "реестр_участников.xlsx");
-        }
-      </script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
-      <script>
-        let originalRegistry = []; // Изначальный реестр
-        let remoteRegistry = []; // Дистанционные участники
-
-        // Обработка файла дистанционных участников
-        document
-          .getElementById("excelFileInputRemote")
-          .addEventListener("change", handleRemoteFile);
-
-        function addAttendee() {
-          const name = document.getElementById("attendeeName").value;
-          const company = document.getElementById("attendeeCompany").value;
-          const email = document.getElementById("attendeeEmail").value;
-          const ticketType = document.getElementById("ticketType").value;
-
-          if (name && company && email && ticketType) {
-            const attendee = {
-              name: name,
-              company: company,
-              email: email,
-              ticketType: ticketType, // Указываем выбранный тип билета
-              present: false, // Устанавливаем значение по умолчанию
-            };
-
-            // Добавляем участника в реестр
-            originalRegistry.push(attendee);
-            console.log("Добавленный участник:", attendee);
-
-            // Обновляем таблицу
-            updateOriginalTable();
-
-            // Очищаем поля ввода
-            document.getElementById("attendeeName").value = "";
-            document.getElementById("attendeeCompany").value = "";
-            document.getElementById("attendeeEmail").value = "";
-            document.getElementById("ticketType").selectedIndex = 0; // Сбрасываем выбор типа билета
-          } else {
-            alert("Пожалуйста, заполните все поля.");
-          }
-        }
-
-        function handleRemoteFile(event) {
-          const file = event.target.files[0];
-
-          if (!file) {
-            console.error("Файл не выбран.");
-            return;
-          }
-
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            try {
-              const data = new Uint8Array(e.target.result);
-              const workbook = XLSX.read(data, { type: "array" });
-              const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-              const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-
-              // Successfully processed the file
-              document.getElementById("excelFileInputRemote").innerText =
-                "Файл успешно загружен!";
-              remoteRegistry = jsonData
-                .filter(row => row["Имя"] && row["Фамилия"])
-                .map(row => ({
-                  company: row["Компания"] || "",
-                  fullName: row["Имя"].trim() + " " + row["Фамилия"].trim(),
-                  summa: row["Сумма"] || "",
-                  status: row["Статус"] || "",
-                  email: row["Email"] || "",
-                  number: row["Телефон"] || "",
-                  otvet: row["Ответственный"] || "",
-                  komm: row["Комментарий"] || "",
-                  ktoreg: row["Кто зарегистрировал"] || "",
-                  regwhen: row["Когда зарегистрирован"] || "",
-                  dogovor: row["Договор"] || "",
-                  kommdog: row["Комментарий к договору"] || "",
-                }));
-
-              updateRemoteTable();
-            } catch (error) {
-              console.error("Ошибка при обработке файла:", error);
-              document.getElementById("excelFileInputRemote").innerText =
-                "Ошибка загрузки файла.";
-            }
-          };
-          reader.readAsArrayBuffer(file);
-        }
-
-        // Обновление таблицы с дистанционными участниками
-        function updateRemoteTable() {
-          const tableBody = document
-            .getElementById("attendeeTable")
-            .getElementsByTagName("tbody")[0];
-
-          // Добавляем дистанционных участников в таблицу
-          remoteRegistry.forEach(function (attendee) {
-            const row = tableBody.insertRow();
-            row.insertCell(0).textContent = attendee.company; // Компания
-            row.insertCell(1).textContent = attendee.fullName; // ФИО
-            row.insertCell(2).textContent = attendee.email; // Email
-            row.insertCell(3).textContent = "Дистанционный"; // Указываем тип билета
-
-            // Используем цикл для заполнения остальных ячеек значением "Не требуется"
-            for (let i = 4; i <= 13; i++) {
-              row.insertCell(i).textContent = "Не требуется";
-            }
-          });
-        }
-
-        // Обработка файла изначального реестра
-        document
-          .getElementById("excelFileInputOriginal")
-          .addEventListener("change", handleOriginalFile);
-
-        function handleOriginalFile(event) {
-          const file = event.target.files[0];
-
-          if (!file) {
-            console.error("Файл не выбран.");
-            return;
-          }
-
-          const reader = new FileReader();
-          reader.onload = function (e) {
-            try {
-              const data = new Uint8Array(e.target.result);
-              const workbook = XLSX.read(data, { type: "array" });
-              const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-              const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-
-              console.log(
-                "Оригинальный реестр успешно загружен. Данные:",
-                jsonData
-              );
-
-              // Фильтруем участников по типу билета "Оптимальный" или "Стандарт"
-              originalRegistry = jsonData
-                .filter(row => {
-                  // Проверяем, существует ли значение в столбце "Билет"
-                  const ticketType = row["Билет"];
-                  return (
-                    ticketType &&
-                    (ticketType.toLowerCase() === "оптимальный" ||
-                      ticketType.toLowerCase() === "стандарт")
-                  );
-                })
-                .map(function (row) {
-                  return {
-                    company: row["Компания"],
-                    name: row["Сотрудник клиента"], // ФИО участника
-                    summa: row["Сумма"],
-                    email: row["Email"],
-                    ticketType: row["Билет"],
-                    status: row["Статус"],
-                    present: false, // Флаг присутствия
-                    number: row["Телефон"],
-                    otvet: row["Ответственный"],
-                    komm: row["Комментарий"],
-                    ktoreg: row["Кто зарегистрировал"],
-                    regwhen: row["Когда зарегистрирован"],
-                    dogovor: row["Договор"],
-                    kommdog: row["Комментарий к договору"],
-                  };
-                });
-
-              console.log(
-                "Изначальный реестр (фильтрованный):",
-                originalRegistry
-              );
-              updateOriginalTable(); // Обновляем таблицу
-            } catch (error) {
-              console.error(
-                "Ошибка при обработке файла изначального реестра:",
-                error
-              );
-            }
-          };
-          reader.onerror = function () {
-            console.error("Ошибка чтения файла");
-          };
-          reader.readAsArrayBuffer(file);
-        }
-
-        // Обновление таблицы с участниками
-        function updateOriginalTable() {
-          const tableBody = document
-            .getElementById("attendeeTable")
-            .getElementsByTagName("tbody")[0];
-
-          // Проходим по каждому участнику и добавляем его в таблицу
-          originalRegistry.forEach(function (attendee) {
-            const row = tableBody.insertRow();
-            row.insertCell(0).textContent = attendee.company;
-            row.insertCell(1).textContent = attendee.name; // ФИО // Компания
-            row.insertCell(2).textContent = attendee.status; // статус
-            row.insertCell(3).textContent = attendee.ticketType; // билет
-            row.insertCell(4).textContent = attendee.summa; // сумма
-            row.insertCell(5).textContent = attendee.number; // сумма
-            row.insertCell(6).textContent = attendee.email; // Email
-            row.insertCell(7).textContent = attendee.otvet;
-            row.insertCell(8).textContent = attendee.komm;
-            row.insertCell(9).textContent = attendee.ktoreg;
-
-            row.insertCell(10).textContent = attendee.regwhen;
-            row.insertCell(11).textContent = attendee.dogovor;
-            row.insertCell(12).textContent = attendee.kommdog;
-            // Добавляем чекбокс для отметки присутствия
-            const presentCell = row.insertCell(13);
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.checked = attendee.present; // Устанавливаем значение присутствия
-            checkbox.addEventListener("change", function () {
-              attendee.present = checkbox.checked; // Обновляем состояние присутствия
-            });
-            presentCell.appendChild(checkbox);
-          });
-        }
-      </script>
+      <img
+        id="loadingImage"
+        src="gp.png"
+        style="display: none"
+        alt="Loading..." />
     </div>
-    <h3>Итоговый реестр участников</h3>
-    <table id="attendeeTable" style="text-align: center">
-      <thead>
-        <tr>
-          <th style="width: 100px">Компания</th>
-          <th style="width: 100px">Сотрудник клиента</th>
-          <th style="width: 100px">Статус</th>
-          <th style="width: 100px">Билет</th>
-          <th style="width: 50px">Сумма</th>
-          <th style="width: 100px">Телефон</th>
-          <th style="width: 100px">Email</th>
-          <th style="width: 100px">Ответственный</th>
-          <th style="width: 100px">Комментарий</th>
-          <th style="width: 150px">Кто зарегистрировал</th>
-          <th style="width: 30px">Когда зарегистрирован</th>
-          <th style="width: 50px">Договор</th>
-          <th style="width: 100px">Комментарий к договору</th>
-          <th style="width: 100px">Присутствие</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Участники будут добавляться сюда -->
-      </tbody>
-    </table>
+
+    <h3 class="itog">Итоговый реестр участников</h3>
+    <div class="filter">
+      <label for="ticketFilter">Фильтр по типу билета:</label>
+      <select id="ticketFilter" onchange="filterByTicketType()">
+        <option value="">Все</option>
+        <option value="дистанционный">Дистанционный</option>
+        <option value="стандарт">Стандарт</option>
+        <option value="оптимальный">Оптимальный</option>
+      </select>
+    </div>
+    <div id="countDisplay">Количество присутствующих: 0</div>
+    <form id="columnSelector">
+      <label><input type="checkbox" value="Компания" /> Компания</label>
+      <label
+        ><input type="checkbox" value="Сотрудник клиента" /> Сотрудник
+        клиента</label
+      >
+      <label><input type="checkbox" value="Статус" /> Статус</label>
+      <label><input type="checkbox" value="Билет" /> Билет</label>
+      <label><input type="checkbox" value="Сумма" /> Сумма</label>
+      <label><input type="checkbox" value="Телефон" /> Телефон</label>
+      <label><input type="checkbox" value="Email" /> Email</label>
+      <label
+        ><input type="checkbox" value="Ответственный" /> Ответственный</label
+      >
+      <label><input type="checkbox" value="Комментарий" /> Комментарий</label>
+      <label
+        ><input type="checkbox" value="Кто зарегистрировал    " /> Кто
+        зарегистрировал</label
+      >
+      <label
+        ><input type="checkbox" value="Когда зарегистрирован" /> Когда
+        зарегистрирован</label
+      >
+      <label><input type="checkbox" value="Договор" /> Договор</label>
+      <label
+        ><input type="checkbox" value="Комментарий к договору" /> Комментарий к
+        договору</label
+      >
+      <label><input type="checkbox" value="Прозвонка" /> Прозвонка</label>
+      <label><input type="checkbox" value="ДА/НЕТ" /> ДА/НЕТ</label>
+      <label><input type="checkbox" value="ИНН" /> ИНН</label>
+      <label><input type="checkbox" value="ОРГАНИЗАЦИЯ" /> ОРГАНИЗАЦИЯ</label>
+      <label><input type="checkbox" value="ДОЛЖНОСТЬ" /> ДОЛЖНОСТЬ</label>
+    </form>
+
+    <div class="generate">
+      <button onclick="generateTable()">Создать таблицу</button>
+    </div>
+    <script>
+      let selectedColumns = [];
+
+      // Обработчик для обновления порядка выбранных столбцов
+      document
+        .querySelectorAll('#columnSelector input[type="checkbox"]')
+        .forEach(input => {
+          input.addEventListener("change", function () {
+            if (this.checked) {
+              selectedColumns.push(this.value);
+            } else {
+              selectedColumns = selectedColumns.filter(
+                col => col !== this.value
+              );
+            }
+          });
+        });
+      function generateTable() {
+        const headers = selectedColumns.map(col => `<th>${col}</th>`).join("");
+        document.getElementById("tableHeaders").innerHTML = headers;
+
+        const tableBody = document.getElementById("tableBody");
+
+        originalData.forEach((item, index) => {
+          const row = selectedColumns
+            .map(col => {
+              if (col === "Присутствие") {
+                return `<td><input type="checkbox" id="presence${index}" onchange="updatePresence(${index}, this.checked)" ${
+                  item["Присутствие"] === "Был" ? "checked" : ""
+                }></td>`;
+              }
+              return `<td>${item[col] || ""}</td>`;
+            })
+            .join("");
+          tableBody.innerHTML += `<tr>${row}</tr>`;
+        });
+      }
+
+      function updatePresence(index, isChecked) {
+        originalData[index]["Присутствие"] = isChecked ? "Был" : "Не был";
+        const attendedCount = originalData.filter(
+          participant => participant["Присутствие"] === "Был"
+        ).length;
+        updatePresenceCount(attendedCount);
+      }
+      document
+        .querySelectorAll('#columnSelector input[type="checkbox"]:checked')
+        .forEach(input => {
+          selectedColumns.push(input.value);
+        });
+    </script>
+    <div class="table-container">
+      <table id="attendeeTable" style="text-align: center">
+        <thead>
+          <tr id="tableHeaders"></tr>
+        </thead>
+        <tbody id="originalTableBody">
+          <!-- Участники будут добавляться сюда -->
+        </tbody>
+      </table>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+
+    <script>
+      let originalData = [];
+      let remoteData = [];
+      function filterByTicketType() {
+        const filterValue = document.getElementById("ticketFilter").value;
+        const tableBody = document.getElementById("originalTableBody");
+
+        // Убираем все строки
+        tableBody.innerHTML = "";
+
+        // Получаем выбранные столбцы
+        const selectedColumns = Array.from(
+          document.querySelectorAll("#columnSelector input:checked")
+        ).map(input => input.value);
+
+        // Фильтруем данные и отображаем
+        originalData.forEach((participant, index) => {
+          if (filterValue === "" || participant["Билет"] === filterValue) {
+            const row = document.createElement("tr");
+            let rowData = `<td>${index + 1}</td>`; // Индекс
+
+            // Заполняем строку данными по выбранным столбцам
+            selectedColumns.forEach(col => {
+              rowData += `<td>${participant[col] || ""}</td>`;
+            });
+
+            // Добавляем чекбокс присутствия
+            rowData += `
+        <td>
+          <input type="checkbox" ${
+            participant["Присутствие"] === "Был" ? "checked" : ""
+          } onchange="updatePresence(${index}, this.checked)">
+        </td>
+      `;
+
+            row.innerHTML = rowData;
+            tableBody.appendChild(row);
+          }
+        });
+      }
+
+      document
+        .getElementById("excelFileInputOriginal")
+        .addEventListener("change", handleOriginalFile);
+      document
+        .getElementById("excelFileInputDist")
+        .addEventListener("change", handleRemoteFile);
+
+      function handleOriginalFile(event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = e => {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: "array" });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+            // Получаем все строки
+            const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+            console.log("Все загруженные строки:", rawData);
+
+            // Находим строку с заголовками
+            const headerRowIndex = rawData.findIndex(
+              row =>
+                row.includes("Компания") &&
+                row.includes("Сотрудник клиента") &&
+                row.includes("Статус")
+            );
+
+            if (headerRowIndex === -1) {
+              alert("Заголовки не найдены в загружаемом файле.");
+              return;
+            }
+
+            // Извлекаем заголовки
+            const headers = rawData[headerRowIndex].map(header =>
+              header.trim()
+            ); // Убираем пробелы
+            console.log("Найденные заголовки:", headers);
+
+            // Ожидаемые заголовки
+            const expectedHeaders = [
+              "Компания",
+              "Сотрудник клиента",
+              "Статус",
+              "Билет",
+              "Прозвонка",
+              "Телефон",
+              "Email",
+              "Ответственный",
+              "Комментарий",
+              "Кто зарегистрировал",
+              "Когда зарегистрирован",
+              "ДА/НЕТ",
+              "ИНН",
+              "ОРГАНИЗАЦИЯ",
+              "ДОЛЖНОСТЬ",
+              "Присутствие",
+            ];
+
+            // Проверка соответствия заголовков
+            const headersMatch =
+              headers.length === expectedHeaders.length - 1 && // Проверяем на один меньше
+              headers.every(
+                (header, index) => header === expectedHeaders[index]
+              );
+
+            if (!headersMatch) {
+              alert("Заголовки в файле не совпадают с ожидаемыми.");
+              console.log("Ожидаемые заголовки:", expectedHeaders);
+              return;
+            }
+
+            // Удаляем строки до заголовков и оставляем только данные
+            originalData = rawData.slice(headerRowIndex + 1).map(row => {
+              const dataObj = {};
+              expectedHeaders.forEach((header, index) => {
+                dataObj[header] = row[index] || ""; // Заполняем объект данными
+              });
+              return dataObj;
+            });
+
+            // Фильтруем пустые строки
+            originalData = originalData.filter(row => {
+              return Object.values(row).some(value => value.trim() !== "");
+            });
+
+            console.log("Original data after filtering:", originalData);
+            renderOriginalTable();
+          };
+          reader.readAsArrayBuffer(file);
+        }
+      }
+
+      function handleRemoteFile(event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = e => {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: "array" });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            remoteData = XLSX.utils.sheet_to_json(sheet);
+            console.log("Remote data:", remoteData); // И здесь тоже проверим
+            compareData();
+          };
+          reader.readAsArrayBuffer(file);
+        }
+      }
+
+      function splitAndCleanPhoneNumbers(phoneNumberString) {
+        // Разделяем строку на отдельные номера по запятым, слешам, пробелам и символам "+".
+        const separatedNumbers = String(phoneNumberString)
+          .split(/[,\/\s+]+/)
+          .map(phone => phone.trim())
+          .filter(phone => phone.length > 0); // Убираем пустые строки
+
+        // Очищаем каждый номер и возвращаем массив очищенных номеров
+        const cleanedNumbers = separatedNumbers.map(cleanPhoneNumber);
+        console.log(`Cleaned phone numbers: ${cleanedNumbers}`);
+        return cleanedNumbers;
+      }
+
+      function cleanPhoneNumber(phoneNumber) {
+        // Очищаем номер, убирая все символы, кроме цифр
+        const cleaned = String(phoneNumber).replace(/[^\d]/g, "");
+        return cleaned;
+      }
+      function formatPhoneNumber(phoneNumber) {
+        const cleaned = cleanPhoneNumber(phoneNumber);
+        console.log(`Formatting phone number: ${cleaned}`);
+
+        // Заменяем "8" на "7", если номер начинается с "8" и длина 11
+        if (cleaned.length === 11 && cleaned.startsWith("8")) {
+          return "7" + cleaned.slice(1);
+        }
+
+        // Если длина 10, добавляем "7"
+        if (cleaned.length === 10) {
+          return "7" + cleaned;
+        }
+
+        // Если номер длиной 11 и начинается с "7", возвращаем номер
+        if (cleaned.length === 11 && cleaned.startsWith("7")) {
+          return cleaned;
+        }
+
+        return cleaned.length === 11 ? cleaned.slice(0, 11) : null;
+      }
+
+      function isValidPhoneNumber(phoneNumber) {
+        // Проверка, что номер соответствует формату "7xxxxxxxxxx"
+        const phoneNumberPattern = /^7\d{10}$/;
+        return phoneNumber && phoneNumberPattern.test(phoneNumber);
+      }
+
+      function removeRegionalNumbers(phoneNumber) {
+        // Фильтрация региональных номеров по кодам
+        const regionalPattern = /^7(484|848|7494|499|495|812|381|7474)/;
+        return !regionalPattern.test(phoneNumber); // Только если номер не из регионов
+      }
+
+      function cleanEmail(email) {
+        if (typeof email !== "string") {
+          return "";
+        }
+
+        // Приводим к нижнему регистру и убираем пробелы
+        email = email.trim().toLowerCase();
+
+        // Разделяем email на локальную часть и домен
+        const [localPart, domain] = email.split("@");
+
+        // Убираем все после '+' и точки для gmail
+        let cleanedLocalPart = localPart.split("+")[0].replace(/\./g, "");
+
+        // Используем стандартный домен для gmail
+        const cleanedDomain =
+          domain === "googlemail.com" ? "gmail.com" : domain;
+
+        // Собираем обратно нормализованный email
+        return `${cleanedLocalPart}@${cleanedDomain}`;
+      }
+
+      function normalizeName(name) {
+        return name.trim().toLowerCase().replace(/\s+/g, " "); // Нормализация имени: убираем лишние пробелы и приводим к нижнему регистру
+      }
+
+      function compareNames(originalFullName, remoteFirstName, remoteLastName) {
+        const normalizedOriginalName = normalizeName(originalFullName);
+        const normalizedRemoteFirstName = normalizeName(remoteFirstName);
+        const normalizedRemoteLastName = normalizeName(remoteLastName);
+
+        // Проверяем, совпадают ли имя и фамилия
+        return (
+          normalizedOriginalName.includes(normalizedRemoteFirstName) &&
+          normalizedOriginalName.includes(normalizedRemoteLastName)
+        );
+      }
+
+      function compareParticipants(original, remote) {
+        const originalFullName = (original["Сотрудник клиента"] || "").trim();
+        const remoteFirstName = (remote["Имя"] || "").trim();
+        const remoteLastName = (remote["Фамилия"] || "").trim();
+
+        // Сравниваем имена
+        const isNameMatch = compareNames(
+          originalFullName,
+          remoteFirstName,
+          remoteLastName
+        );
+
+        const originalPhones = splitAndCleanPhoneNumbers(
+          original["Телефон"] || ""
+        )
+          .map(formatPhoneNumber)
+          .filter(isValidPhoneNumber);
+
+        // Обрабатываем телефон из дистанционного списка
+        const remotePhone = remote["Телефон"] || "";
+        const remotePhones = splitAndCleanPhoneNumbers(remotePhone)
+          .map(formatPhoneNumber)
+          .filter(isValidPhoneNumber);
+
+        // Проверяем, есть ли совпадение хотя бы с одним номером
+        const isPhoneMatch = remotePhones.some(phone =>
+          originalPhones.includes(phone)
+        );
+
+        const originalEmail = cleanEmail(original["Email"] || "");
+        const remoteEmail = cleanEmail(remote["Email"] || "");
+
+        const isEmailMatch = originalEmail === remoteEmail;
+
+        return isNameMatch || isPhoneMatch || isEmailMatch;
+      }
+
+      function compareData() {
+        const uniqueOriginalData = removeDuplicates(originalData);
+        const uniqueRemoteData = removeDuplicates(remoteData);
+
+        const processedParticipants = new Set();
+        let totalPresent = 0;
+
+        uniqueOriginalData.forEach(originalParticipant => {
+          if (originalParticipant["Билет"] === "дистанционный") {
+            const originalEmail = cleanEmail(
+              originalParticipant["Email"] || ""
+            );
+            const originalPhone = cleanPhoneNumber(
+              originalParticipant["Телефон"] || ""
+            );
+            const originalFullName = (
+              originalParticipant["Сотрудник клиента"] || ""
+            )
+              .trim()
+              .toLowerCase();
+            const uniqueId = `${originalEmail.toLowerCase()}_${originalPhone}`;
+
+            // Пропускаем дубликаты
+            if (processedParticipants.has(uniqueId)) {
+              console.log(`Skipping duplicate participant: ${uniqueId}`);
+              return;
+            }
+
+            const match = uniqueRemoteData.find(remoteParticipant => {
+              const isMatch = compareParticipants(
+                originalParticipant,
+                remoteParticipant
+              );
+
+              // Отладочный вывод для анализа совпадений
+              if (isMatch) {
+                console.log(
+                  `Match found between: Original - ${originalParticipant["Email"]}, Phone: ${originalParticipant["Телефон"]}
+                      and Remote - ${remoteParticipant["Email"]}, Phone: ${remoteParticipant["Телефон"]}`
+                );
+
+                // Устанавливаем номер телефона из дистанционного списка, если оригинальный отсутствует
+                if (!originalParticipant["Телефон"]) {
+                  originalParticipant["Телефон"] = remoteParticipant["Телефон"];
+                }
+              }
+              return isMatch;
+            });
+
+            // Проверка наличия совпадений
+            if (match) {
+              originalParticipant["Присутствие"] = "Был";
+              processedParticipants.add(uniqueId);
+              totalPresent++;
+            } else {
+              originalParticipant["Присутствие"] = "Не был";
+            }
+          }
+        });
+
+        console.log(`Total present after comparison: ${totalPresent}`);
+        renderOriginalTable(totalPresent);
+      }
+
+      function removeDuplicates(participants) {
+        const seen = new Set();
+        return participants.filter(participant => {
+          const uniqueId = `${cleanEmail(
+            participant["Email"] || ""
+          )}_${cleanPhoneNumber(participant["Телефон"] || "")}`;
+          if (!seen.has(uniqueId) && uniqueId) {
+            seen.add(uniqueId);
+            return true; // Возвращаем уникальный участник
+          }
+          return false; // Пропускаем дубликат
+        });
+      }
+
+      function renderOriginalTable() {
+        const tableBody = document.getElementById("originalTableBody");
+        tableBody.innerHTML = "";
+
+        // Получаем выбранные столбцы
+        const selectedColumns = Array.from(
+          document.querySelectorAll("#columnSelector input:checked")
+        ).map(input => input.value);
+
+        // Создаем заголовки таблицы с индексом
+        const headers = ["№", ...selectedColumns, "Присутствие"]
+          .map(col => `<th>${col}</th>`)
+          .join("");
+        document.getElementById("tableHeaders").innerHTML = headers;
+
+        // Отображаем данные с учетом выбранных столбцов
+        originalData.forEach((participant, index) => {
+          const row = document.createElement("tr");
+
+          // Создаем строку с индексом и выбранными столбцами
+          let rowData = `<td>${index + 1}</td>`; // Индекс
+
+          selectedColumns.forEach(col => {
+            rowData += `<td>${participant[col] || ""}</td>`;
+          });
+
+          // Проверка статуса присутствия и создание чекбокса
+          const isChecked = participant["Присутствие"] === "Был"; // Проверка статуса
+          rowData += `<td><input type="checkbox" id="attendance-${index}" ${
+            isChecked ? "checked" : ""
+          } onchange="updatePresence(${index}, this.checked)"></td>`;
+          row.innerHTML = rowData;
+          tableBody.appendChild(row);
+        });
+
+        // Обновляем отображение количества присутствующих
+        updatePresenceCount(
+          originalData.filter(
+            participant => participant["Присутствие"] === "Был"
+          ).length
+        );
+      }
+
+      function updatePresenceCount(totalPresent) {
+        const countDisplay = document.getElementById("countDisplay");
+        countDisplay.textContent = `Количество присутствующих: ${totalPresent}`;
+
+        // Можем добавить цвет или стиль для выделения
+        countDisplay.style.color = totalPresent > 0; // Пример изменения цвета
+      }
+
+      // Обновляем функцию updatePresence
+      function updatePresence(index, isChecked) {
+        // Обновляем статус присутствия в данных
+        originalData[index]["Присутствие"] = isChecked ? "Был" : "Не был";
+
+        // Пересчитываем общее количество присутствующих
+        const attendedCount = originalData.filter(
+          participant => participant["Присутствие"] === "Был"
+        ).length;
+
+        // Обновляем отображение количества присутствующих
+        updatePresenceCount(attendedCount);
+
+        // Логируем количество отмеченных участников
+        console.log(
+          `Отмечено "Был": ${attendedCount} из ${originalData.length}`
+        );
+      }
+
+      const attendees = [];
+
+      // Функция для добавления участника
+      function addAttendee() {
+        const selectedColumns = Array.from(
+          document.querySelectorAll("#columnSelector input:checked")
+        ).map(input => input.value);
+
+        const newAttendee = {};
+
+        // Проверяем заполненность только тех полей, которые выбраны
+        for (const column of selectedColumns) {
+          const inputId = `attendee${column.replace(/\s+/g, "")}`;
+          const value = document.getElementById(inputId)?.value;
+
+          if (!value) {
+            alert(`Пожалуйста, заполните поле: ${column}`);
+            return;
+          }
+
+          newAttendee[column] = value;
+        }
+
+        // По умолчанию присваиваем "Не был" для "Присутствие"
+        newAttendee["Присутствие"] = "Не был";
+
+        // Добавляем нового участника в оригинальный массив данных
+        originalData.push(newAttendee);
+
+        // Обновляем таблицу
+        renderOriginalTable();
+
+        // Очищаем поля ввода после добавления
+        selectedColumns.forEach(column => {
+          const inputId = `attendee${column.replace(/\s+/g, "")}`;
+          document.getElementById(inputId).value = "";
+        });
+
+        // Сообщаем об успешном добавлении
+        alert("Участник успешно добавлен!");
+      }
+
+      function exportTableToExcel() {
+        const loadingImage = document.getElementById("loadingImage");
+        const eventTitle = document.getElementById("eventTitle").value;
+        const eventType = document.getElementById("eventType").value;
+        loadingImage.style.display = "block";
+
+        const selectedColumns = Array.from(
+          document.querySelectorAll(
+            "#columnSelector input[type='checkbox']:checked"
+          )
+        ).map(checkbox => checkbox.value);
+
+        const formattedData = originalData.map(participant => {
+          const data = {};
+          selectedColumns.forEach(column => {
+            data[column] = participant[column] || "";
+          });
+          return data;
+        });
+
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet("Итоговый реестр");
+
+        // Добавление заголовков с применением стилей
+        const titleRow = worksheet.addRow([eventTitle]);
+        titleRow.font = { bold: true, size: 18, color: { argb: "FF0000FF" } }; // Размер шрифта 18
+        titleRow.alignment = { horizontal: "center" };
+        worksheet.mergeCells(
+          `A1:${String.fromCharCode(65 + selectedColumns.length - 1)}1`
+        ); // Объединение ячеек
+
+        const typeRow = worksheet.addRow([eventType]);
+        typeRow.font = { bold: true, size: 14, color: { argb: "FF0000FF" } }; // Размер шрифта 14
+        typeRow.alignment = { horizontal: "center" };
+        worksheet.mergeCells(
+          `A2:${String.fromCharCode(65 + selectedColumns.length - 1)}2`
+        ); // Объединение ячеек
+
+        // Добавление строк с заголовками
+        worksheet.addRow(selectedColumns);
+
+        // Добавление данных
+        formattedData.forEach(participant => {
+          worksheet.addRow(selectedColumns.map(column => participant[column]));
+        });
+
+        // Установка ширины столбцов
+        worksheet.columns.forEach((column, index) => {
+          column.width = 20; // Установка ширины столбцов (можно адаптировать под конкретные нужды)
+        });
+
+        // Сохранение файла
+        workbook.xlsx.writeBuffer().then(function (data) {
+          const blob = new Blob([data], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "Итоговый_реестр_участников.xlsx";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          loadingImage.style.display = "none";
+        });
+      }
+    </script>
   </body>
 </html>
