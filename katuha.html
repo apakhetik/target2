@@ -136,13 +136,23 @@
       <button class="download-btn" onclick="exportTableToExcel()">
         Скачать реестр
       </button>
+
       <img
         id="loadingImage"
         src="gp.png"
         style="display: none"
         alt="Loading..." />
     </div>
-
+    <canvas
+      id="confettiCanvas"
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      "></canvas>
     <h3 class="itog">Итоговый реестр участников</h3>
     <div class="filter">
       <label for="ticketFilter">Фильтр по типу билета:</label>
@@ -256,6 +266,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tsparticles/confetti@3.0.3/tsparticles.confetti.bundle.min.js"></script>
 
     <script>
       let originalData = [];
@@ -327,7 +338,10 @@
             );
 
             if (headerRowIndex === -1) {
-              alert("Заголовки не найдены в загружаемом файле.");
+              showNotification(
+                "Заголовки не найдены в загружаемом файле.",
+                "error"
+              );
               return;
             }
 
@@ -335,7 +349,7 @@
             const headers = rawData[headerRowIndex].map(header =>
               header.trim()
             ); // Убираем пробелы
-            console.log("Найденные заголовки:", headers);
+            showNotification("Найденные заголовки:", headers);
 
             // Ожидаемые заголовки
             const expectedHeaders = [
@@ -364,7 +378,10 @@
                 (header, index) => header === expectedHeaders[index]
               );
             if (!headersMatch) {
-              alert("Заголовки в файле не совпадают с ожидаемыми.");
+              showNotification(
+                "Заголовки в файле не совпадают с ожидаемыми.",
+                "error"
+              );
               console.log("Ожидаемые заголовки:", expectedHeaders);
               return;
             }
@@ -384,10 +401,69 @@
             });
 
             console.log("Original data after filtering:", originalData);
+            showNotification("Реестр успешно загружен!", "success");
             renderOriginalTable();
           };
           reader.readAsArrayBuffer(file);
         }
+      }
+
+      function showNotification(message, type = "success") {
+        // Создаем элемент для уведомления
+        const notification = document.createElement("div");
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+
+        // Добавляем стили для уведомления
+        const styles = `
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 5px;
+      font-size: 16px;
+      color: #fff;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      transform: translateY(-20px);
+    }
+    .notification.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .notification.success {
+      background-color: #4caf50; /* Зеленый цвет для успеха */
+    }
+    .notification.error {
+      background-color: #f44336; /* Красный цвет для ошибки */
+    }
+  `;
+
+        // Создаем элемент <style> для добавления стилей
+        const styleSheet = document.createElement("style");
+        styleSheet.type = "text/css";
+        styleSheet.innerText = styles;
+        document.head.appendChild(styleSheet);
+
+        // Добавляем уведомление на страницу
+        document.body.appendChild(notification);
+
+        // Показываем уведомление с анимацией
+        setTimeout(() => {
+          notification.classList.add("show");
+        }, 100);
+
+        // Скрываем уведомление через 5 секунд
+        setTimeout(() => {
+          notification.classList.remove("show");
+          // Удаляем уведомление после завершения анимации
+          setTimeout(() => {
+            notification.remove();
+          }, 300);
+        }, 5000);
       }
 
       function handleRemoteFile(event) {
@@ -401,6 +477,7 @@
             remoteData = XLSX.utils.sheet_to_json(sheet);
             console.log("Remote data:", remoteData); // И здесь тоже проверим
             compareData();
+            showNotification("Статистика успешно загружена!", "success");
           };
           reader.readAsArrayBuffer(file);
         }
@@ -728,66 +805,194 @@
         const eventTitle = document.getElementById("eventTitle").value;
         const eventType = document.getElementById("eventType").value;
         loadingImage.style.display = "block";
-
         const selectedColumns = Array.from(
           document.querySelectorAll(
             "#columnSelector input[type='checkbox']:checked"
           )
         ).map(checkbox => checkbox.value);
 
-        const formattedData = originalData.map(participant => {
-          const data = {};
-          selectedColumns.forEach(column => {
-            data[column] = participant[column] || "";
+        const presentData = originalData
+          .filter(participant => participant["Присутствие"] === "Был")
+          .map(participant => {
+            const data = {};
+            selectedColumns.forEach(column => {
+              data[column] = participant[column] || "";
+            });
+            return data;
           });
-          return data;
-        });
+
+        const absentData = originalData
+          .filter(participant => participant["Присутствие"] !== "Был")
+          .map(participant => {
+            const data = {};
+            selectedColumns.forEach(column => {
+              data[column] = participant[column] || "";
+            });
+            return data;
+          });
 
         const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet("Итоговый реестр");
+        const presentSheet = workbook.addWorksheet("Итоговый реестр");
+        const absentSheet = workbook.addWorksheet("Отвал");
 
-        // Добавление заголовков с применением стилей
-        const titleRow = worksheet.addRow([eventTitle]);
-        titleRow.font = { bold: true, size: 18, color: { argb: "FF0000FF" } }; // Размер шрифта 18
+        // Добавляем заголовки и данные на оба листа
+        const titleRow = presentSheet.addRow([eventTitle]);
+        titleRow.font = { bold: true, size: 18, color: { argb: "FF0000FF" } };
         titleRow.alignment = { horizontal: "center" };
-        worksheet.mergeCells(
+        presentSheet.mergeCells(
           `A1:${String.fromCharCode(65 + selectedColumns.length - 1)}1`
-        ); // Объединение ячеек
+        );
 
-        const typeRow = worksheet.addRow([eventType]);
-        typeRow.font = { bold: true, size: 14, color: { argb: "FF0000FF" } }; // Размер шрифта 14
+        const typeRow = presentSheet.addRow([eventType]);
+        typeRow.font = { bold: true, size: 14, color: { argb: "FF0000FF" } };
         typeRow.alignment = { horizontal: "center" };
-        worksheet.mergeCells(
+        presentSheet.mergeCells(
           `A2:${String.fromCharCode(65 + selectedColumns.length - 1)}2`
-        ); // Объединение ячеек
+        );
 
-        // Добавление строк с заголовками
-        worksheet.addRow(selectedColumns);
-
-        // Добавление данных
-        formattedData.forEach(participant => {
-          worksheet.addRow(selectedColumns.map(column => participant[column]));
+        presentSheet.addRow(selectedColumns);
+        presentData.forEach(participant => {
+          presentSheet.addRow(
+            selectedColumns.map(column => participant[column])
+          );
         });
 
-        // Установка ширины столбцов
-        worksheet.columns.forEach((column, index) => {
-          column.width = 20; // Установка ширины столбцов (можно адаптировать под конкретные нужды)
+        absentSheet.addRow(selectedColumns);
+        absentData.forEach(participant => {
+          absentSheet.addRow(
+            selectedColumns.map(column => participant[column])
+          );
         });
 
-        // Сохранение файла
-        workbook.xlsx.writeBuffer().then(function (data) {
-          const blob = new Blob([data], {
-            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        // Сохраняем файл
+        workbook.xlsx
+          .writeBuffer()
+          .then(function (data) {
+            const blob = new Blob([data], {
+              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "Итоговый_реестр_участников.xlsx";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            loadingImage.style.display = "block";
+            showConfetti();
+          })
+          .catch(function (error) {
+            console.error("Ошибка при экспорте: ", error);
+            loadingImage.style.display = "none";
           });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = "Итоговый_реестр_участников.xlsx";
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          loadingImage.style.display = "none";
-        });
+      }
+      function showConfetti() {
+        if (window.confetti) {
+          window.confetti({
+            spread: 360,
+            ticks: 300,
+            gravity: 1,
+            decay: 0.92,
+            startVelocity: 30,
+            particleCount: 100,
+            scalar: 3,
+            shapes: ["image"],
+            shapeOptions: {
+              image: [
+                {
+                  src: "https://particles.js.org/images/fruits/apple.png",
+                  width: 32,
+                  height: 32,
+                },
+                {
+                  src: "https://particles.js.org/images/fruits/avocado.png",
+                  width: 32,
+                  height: 32,
+                },
+                {
+                  src: "https://particles.js.org/images/fruits/banana.png",
+                  width: 32,
+                  height: 32,
+                },
+                {
+                  src: "https://particles.js.org/images/fruits/berries.png",
+                  width: 32,
+                  height: 32,
+                },
+                {
+                  src: "https://particles.js.org/images/fruits/cherry.png",
+                  width: 32,
+                  height: 32,
+                },
+                {
+                  src: "https://particles.js.org/images/fruits/grapes.png",
+                  width: 32,
+                  height: 32,
+                },
+                {
+                  src: "https://particles.js.org/images/fruits/lemon.png",
+                  width: 32,
+                  height: 32,
+                },
+                {
+                  src: "https://particles.js.org/images/fruits/orange.png",
+                  width: 32,
+                  height: 32,
+                },
+                {
+                  src: "https://particles.js.org/images/fruits/peach.png",
+                  width: 32,
+                  height: 32,
+                },
+                {
+                  src: "https://particles.js.org/images/fruits/pear.png",
+                  width: 32,
+                  height: 32,
+                },
+                {
+                  src: "https://particles.js.org/images/fruits/pepper.png",
+                  width: 32,
+                  height: 32,
+                },
+                {
+                  src: "https://particles.js.org/images/fruits/plum.png",
+                  width: 32,
+                  height: 32,
+                },
+                {
+                  src: "https://particles.js.org/images/fruits/star.png",
+                  width: 32,
+                  height: 32,
+                },
+                {
+                  src: "https://particles.js.org/images/fruits/strawberry.png",
+                  width: 32,
+                  height: 32,
+                },
+                {
+                  src: "https://particles.js.org/images/fruits/watermelon.png",
+                  width: 32,
+                  height: 32,
+                },
+                {
+                  src: "https://particles.js.org/images/fruits/watermelon_slice.png",
+                  width: 32,
+                  height: 32,
+                },
+              ],
+            },
+          });
+        } else {
+          console.error("Confetti library is not loaded.");
+        }
+      }
+
+      function stopConfetti() {
+        const canvas = document.getElementById("confettiCanvas");
+        if (canvas) {
+          const context = canvas.getContext("2d");
+          context.clearRect(0, 0, canvas.width, canvas.height);
+        }
       }
     </script>
   </body>
