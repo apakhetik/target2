@@ -352,24 +352,14 @@
             showNotification("Найденные заголовки:", headers);
 
             // Ожидаемые заголовки
-            const expectedHeaders = [
-              "Компания",
-              "Сотрудник клиента",
-              "Статус",
-              "Билет",
-              "Прозвонка",
-              "Телефон",
-              "Email",
-              "Ответственный",
-              "Комментарий",
-              "Кто зарегистрировал",
-              "Когда зарегистрирован",
-              "ДА/НЕТ",
-              "ИНН",
-              "ОРГАНИЗАЦИЯ",
-              "ДОЛЖНОСТЬ",
-              "Присутствие",
-            ];
+            const selectedColumns = Array.from(
+              document.querySelectorAll(
+                "#columnSelector input[type='checkbox']:checked"
+              )
+            ).map(checkbox => checkbox.value);
+
+            // Используем выбранные столбцы для формирования expectedHeaders
+            const expectedHeaders = selectedColumns.concat(["Присутствие"]);
 
             // Проверка соответствия заголовков
             const headersMatch =
