@@ -180,7 +180,7 @@
       >
       <label><input type="checkbox" value="Комментарий" /> Комментарий</label>
       <label
-        ><input type="checkbox" value="Кто зарегистрировал    " /> Кто
+        ><input type="checkbox" value="Кто зарегистрировал" /> Кто
         зарегистрировал</label
       >
       <label
@@ -352,41 +352,54 @@
             showNotification("Найденные заголовки:", headers);
 
             // Ожидаемые заголовки
-            const selectedColumns = Array.from(
-              document.querySelectorAll(
-                "#columnSelector input[type='checkbox']:checked"
-              )
-            ).map(checkbox => checkbox.value);
+            // Определяем ожидаемые заголовки на основе выбранного набора
+            const possibleHeaders = [
+              "Компания",
+              "Сотрудник клиента",
+              "Статус",
+              "Билет",
+              "Сумма",
+              "Телефон",
+              "Email",
+              "Ответственный",
+              "Комментарий",
+              "Кто зарегистрировал",
+              "Когда зарегистрирован",
+              "Договор",
+              "Комментарий к договору",
+              "Прозвонка",
+              "ДА/НЕТ",
+              "ИНН",
+              "ОРГАНИЗАЦИЯ",
+              "ДОЛЖНОСТЬ",
+            ];
 
-            // Используем выбранные столбцы для формирования expectedHeaders
-            const expectedHeaders = selectedColumns.concat(["Присутствие"]);
+            // Определяем фактические заголовки, которые присутствуют в файле
+            const actualHeaders = possibleHeaders.filter(header =>
+              headers.includes(header)
+            );
 
-            // Проверка соответствия заголовков с учётом возможных пробелов и регистра
-            const headersMatch =
-              headers.length === selectedColumns.length &&
-              headers.every(
-                (header, index) =>
-                  header.toLowerCase() === selectedColumns[index].toLowerCase()
-              );
-
-            if (!headersMatch) {
+            // Проверка соответствия заголовков
+            if (actualHeaders.length === 0) {
               showNotification(
                 "Заголовки в файле не совпадают с ожидаемыми.",
                 "error"
               );
-              console.log("Ожидаемые заголовки:", expectedHeaders);
+              console.log("Ожидаемые заголовки:", possibleHeaders);
               return;
             }
 
             // Удаляем строки до заголовков и оставляем только данные
             originalData = rawData.slice(headerRowIndex + 1).map(row => {
               const dataObj = {};
-              expectedHeaders.forEach((header, index) => {
-                dataObj[header] = row[index] || ""; // Заполняем объект данными
+              actualHeaders.forEach(header => {
+                const value = row[headers.indexOf(header)];
+                // Сохраняем значение, даже если это 0, иначе записываем пустую строку
+                dataObj[header] =
+                  value !== undefined && value !== null ? value : "";
               });
               return dataObj;
             });
-
             // Фильтруем пустые строки
             originalData = originalData.filter(row => {
               return Object.values(row).some(value => value.trim() !== "");
@@ -826,6 +839,11 @@
         const workbook = new ExcelJS.Workbook();
         const presentSheet = workbook.addWorksheet("Итоговый реестр");
         const absentSheet = workbook.addWorksheet("Отвал");
+        selectedColumns.forEach((column, index) => {
+          const width = column.length < 18 ? 18 : column.length; // Задаем ширину по умолчанию 15 или по длине заголовка, если он длиннее
+          presentSheet.getColumn(index + 1).width = width;
+          absentSheet.getColumn(index + 1).width = width;
+        });
 
         // Добавляем заголовки и данные на оба листа
         const titleRow = presentSheet.addRow([eventTitle]);
