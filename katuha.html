@@ -359,14 +359,16 @@
             ).map(checkbox => checkbox.value);
 
             // Используем выбранные столбцы для формирования expectedHeaders
-            const expectedHeaders = selectedColumns.concat();
+            const expectedHeaders = selectedColumns.concat(["Присутствие"]);
 
-            // Проверка соответствия заголовков
+            // Проверка соответствия заголовков с учётом возможных пробелов и регистра
             const headersMatch =
-              headers.length === expectedHeaders.length - 1 && // Проверяем на один меньше
+              headers.length === selectedColumns.length &&
               headers.every(
-                (header, index) => header === expectedHeaders[index]
+                (header, index) =>
+                  header.toLowerCase() === selectedColumns[index].toLowerCase()
               );
+
             if (!headersMatch) {
               showNotification(
                 "Заголовки в файле не совпадают с ожидаемыми.",
