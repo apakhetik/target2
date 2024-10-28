@@ -155,13 +155,30 @@
       "></canvas>
     <h3 class="itog">Итоговый реестр участников</h3>
     <div class="filter">
-      <label for="ticketFilter">Фильтр по типу билета:</label>
-      <select id="ticketFilter" onchange="filterByTicketType()">
-        <option value="">Все</option>
-        <option value="дистанционный">Дистанционный</option>
-        <option value="стандарт">Стандарт</option>
-        <option value="оптимальный">Оптимальный</option>
-      </select>
+      <label>Фильтр по типу билета:</label>
+      <div>
+        <label>
+          <input
+            type="checkbox"
+            value="дистанционный"
+            onchange="filterByTicketType()" />
+          Дистанционный
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            value="стандарт"
+            onchange="filterByTicketType()" />
+          Стандарт
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            value="оптимальный"
+            onchange="filterByTicketType()" />
+          Оптимальный
+        </label>
+      </div>
     </div>
     <div id="countDisplay">Количество присутствующих: 0</div>
     <form id="columnSelector">
@@ -272,10 +289,12 @@
       let originalData = [];
       let remoteData = [];
       function filterByTicketType() {
-        const filterValue = document.getElementById("ticketFilter").value;
-        const tableBody = document.getElementById("originalTableBody");
+        // Получаем выбранные типы билетов из отмеченных чекбоксов
+        const selectedTicketTypes = Array.from(
+          document.querySelectorAll(".filter input[type='checkbox']:checked")
+        ).map(input => input.value);
 
-        // Убираем все строки
+        const tableBody = document.getElementById("originalTableBody");
         tableBody.innerHTML = "";
 
         // Получаем выбранные столбцы
@@ -285,7 +304,11 @@
 
         // Фильтруем данные и отображаем
         originalData.forEach((participant, index) => {
-          if (filterValue === "" || participant["Билет"] === filterValue) {
+          // Проверка: если нет выбранных фильтров или тип билета совпадает с выбранными
+          if (
+            selectedTicketTypes.length === 0 ||
+            selectedTicketTypes.includes(participant["Билет"])
+          ) {
             const row = document.createElement("tr");
             let rowData = `<td>${index + 1}</td>`; // Индекс
 
