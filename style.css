@@ -167,12 +167,6 @@ p {
   transition: opacity 1s ease;
   opacity: 0;
 }
-.content-block {
-  display: none; /* Изначально скрываем все блоки */
-}
-.content-block.active {
-  display: block; /* Показываем активный блок */
-}
 
 #serts input[type="text"],
 #serts input[type="email"],
