@@ -9,7 +9,7 @@
     <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
   </head>
   <body>
-    <div class="header">
+    <!-- <div class="header">
       <div class="left-head">
         <img src="./logo.png" alt="" class="logo" />
       </div>
@@ -18,10 +18,9 @@
         <a href="./index.html" class="link-head" id="show-serts">Сертификаты</a>
         <a href="katuha.html" class="link-head">КАТЮХА</a>
       </div>
-    </div>
+    </div> -->
     <div class="content-block" id="target">
-      <h1>Редактирование номеров телефона для отправки таргета</h1>
-      <p>Для Катюхи 💕</p>
+      <h1>Создание файла номеров для таргета</h1>
       <div class="input-container">
         <textarea
           id="phoneNumbers"
@@ -35,7 +34,7 @@
       <ul id="formattedNumbers"></ul>
       <ul id="invalidNumbers"></ul>
     </div>
-    <div class="content-block" id="serts">
+    <!-- <div class="content-block" id="serts">
       <h1>Отправка сертификатов клиентам</h1>
       <p>Для Катюхи 💕</p>
       <form id="certificateForm" enctype="multipart/form-data">
@@ -72,7 +71,7 @@
       </form>
 
       <div id="message"></div>
-    </div>
+    </div> -->
 
     <script>
       document
@@ -102,7 +101,7 @@
             showBlock.style.display = "block"; // Показываем нужный блок
           }, 1000); // Ожидание завершения анимации
         } else {
-          showBlock.style.display = "block"; // Показываем нужный блок
+          showBlock.style.displa y = "block"; // Показываем нужный блок
         }
       }
 
